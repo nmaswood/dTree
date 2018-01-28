@@ -49,11 +49,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.tree = d3.tree().nodeSize([nodeSize[0] * 2, nodeSize[1] * 2.5]);
 
         this.tree.separation(function separation(a, b) {
-          if (a.data.hidden || b.data.hidden) {
-            return 0.3;
-          } else {
-            return 0.6;
-          }
+          return a.data.hidden || b.data.hidden ? .3 : .6;
         });
 
         this._update(this.root);
@@ -70,21 +66,34 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var links = treenodes.links();
 
         // Create the link lines.
-        this.svg.selectAll('.link').data(links).enter()
+        var linksvgs = this.svg.selectAll('.link').data(links).enter()
         // filter links with no parents to prevent empty nodes
         .filter(function (l) {
           return !l.target.data.noParent;
-        }).append('path').attr('class', opts.styles.linage).attr('d', this._elbow);
+        });
+
+        linksvgs.append('path').attr('class', opts.styles.linage).attr('d', this._elbow);
+
+        var formatPercent = d3.format('.0%');
+        linksvgs.append('text').attr('x', function (d) {
+          var source = d.source;
+          var target = d.target;
+          return target.x + 'px';
+        }).attr('y', function (d) {
+          var source = d.source;
+          var target = d.target;
+          return d.target.y - 47 + 'px';
+        }).style('fill', 'gray').attr('font-family', 'Source Sans Pro, sans-serif').attr('font-weight', 800).attr('font-size', '10px').attr('text-anchor', 'middle').text(function (d) {
+          var source = d.source;
+          var target = d.target;
+          var percentage = target.data.percentage;
+          return formatPercent(percentage);
+        });
 
         var nodes = this.svg.selectAll('.node').data(treenodes.descendants()).enter();
 
-        this._linkSiblings();
-
-        // Draw siblings (marriage)
-        this.svg.selectAll('.sibling').data(this.siblings).enter().append('path').attr('class', opts.styles.marriage).attr('d', _.bind(this._siblingLine, this));
-
-        // Create the node rectangles.
-        nodes.append('foreignObject').filter(function (d) {
+        // Create the node svgs.
+        var svgs = nodes.append('svg').filter(function (d) {
           return d.data.hidden ? false : true;
         }).attr('x', function (d) {
           return d.x - d.cWidth / 2 + 'px';
@@ -96,14 +105,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return d.cHeight + 'px';
         }).attr('id', function (d) {
           return d.id;
-        }).html(function (d) {
-          return opts.callbacks.nodeRenderer(d.data.name, d.x, d.y, nodeSize[0], nodeSize[1], d.data.extra, d.data.id, d.data['class'], d.data.textClass, opts.callbacks.textRenderer);
-        }).on('click', function (d) {
-          if (d.data.hidden) {
-            return;
-          }
-          opts.callbacks.nodeClick(d.data.name, d.data.extra, d.data.id);
         });
+        var groups = TreeBuilder._nodeRenderer(svgs);
       }
     }, {
       key: '_flatten',
@@ -129,91 +132,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         if (d.target.data.noParent) {
           return 'M0,0L0,0';
         }
-        var ny = d.target.y + (d.source.y - d.target.y) * 0.50;
 
-        var linedata = [{
-          x: d.target.x,
-          y: d.target.y
-        }, {
-          x: d.target.x,
-          y: ny
-        }, {
-          x: d.source.x,
-          y: d.source.y
-        }];
+        // seperation of nodes height
+        var ny = d.target.y + (d.source.y - d.target.y) * 1;
+        var yDelta = -20;
 
-        var fun = d3.line().curve(d3.curveStepAfter).x(function (d) {
-          return d.x;
-        }).y(function (d) {
-          return d.y;
-        });
-        return fun(linedata);
-      }
-    }, {
-      key: '_linkSiblings',
-      value: function _linkSiblings() {
-
-        var allNodes = this.allNodes;
-
-        _.forEach(this.siblings, function (d) {
-          var start = allNodes.filter(function (v) {
-            return d.source.id == v.data.id;
-          });
-          var end = allNodes.filter(function (v) {
-            return d.target.id == v.data.id;
-          });
-          d.source.x = start[0].x;
-          d.source.y = start[0].y;
-          d.target.x = end[0].x;
-          d.target.y = end[0].y;
-
-          var marriageId = start[0].data.marriageNode != null ? start[0].data.marriageNode.id : end[0].data.marriageNode.id;
-          var marriageNode = allNodes.find(function (n) {
-            return n.data.id == marriageId;
-          });
-          d.source.marriageNode = marriageNode;
-          d.target.marriageNode = marriageNode;
-        });
-      }
-    }, {
-      key: '_siblingLine',
-      value: function _siblingLine(d, i) {
-
-        var ny = d.target.y + (d.source.y - d.target.y) * 0.50;
-        var nodeWidth = this.nodeSize[0];
-        var nodeHeight = this.nodeSize[1];
-
-        // Not first marriage
-        if (d.number > 0) {
-          ny -= nodeHeight * 8 / 10;
-        }
-
-        var linedata = [{
-          x: d.source.x,
-          y: d.source.y
-        }, {
-          x: d.source.x + nodeWidth * 6 / 10,
-          y: d.source.y
-        }, {
-          x: d.source.x + nodeWidth * 6 / 10,
-          y: ny
-        }, {
-          x: d.target.marriageNode.x,
-          y: ny
-        }, {
-          x: d.target.marriageNode.x,
-          y: d.target.y
-        }, {
-          x: d.target.x,
-          y: d.target.y
-        }];
-
-        var fun = d3.line().curve(d3.curveStepAfter).x(function (d) {
-          return d.x;
-        }).y(function (d) {
-          return d.y;
-        });
-        return fun(linedata);
+        return 'M ' + d.target.x + ' ' + d.target.y + ('l ' + 0 + ' ' + yDelta * 2) + ('m ' + 0 + ' ' + yDelta) + ('L ' + d.target.x + ' ' + ny) + ('L ' + d.source.x + ' ' + d.source.y) + '';
       }
     }], [{
       key: '_nodeSize',
@@ -222,14 +146,16 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         var maxHeight = 0;
         var tmpSvg = document.createElement('svg');
         document.body.appendChild(tmpSvg);
-
         _.map(nodes, function (n) {
           var container = document.createElement('div');
-          container.setAttribute('class', n.data['class']);
+          var HARD_CODED_CLASS = 'man' || n.data['class'];
+          var HARD_CODED_TEXT_CLASS = 'nice' || n.data.textClass;
+
+          container.setAttribute('class', HARD_CODED_CLASS);
           container.style.visibility = 'hidden';
           container.style.maxWidth = width + 'px';
 
-          var text = textRenderer(n.data.name, n.data.extra, n.data.textClass);
+          var text = textRenderer(n.data.name, n.data.data, HARD_CODED_TEXT_CLASS);
           container.innerHTML = text;
 
           tmpSvg.appendChild(container);
@@ -238,37 +164,83 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
           maxHeight = Math.max(maxHeight, height);
           n.cHeight = height;
-          if (n.data.hidden) {
-            n.cWidth = 0;
-          } else {
-            n.cWidth = width;
-          }
+
+          n.cWidth = n.data.hidden ? 0 : width;
         });
         document.body.removeChild(tmpSvg);
 
         return [width, maxHeight];
       }
     }, {
+      key: 'depthToColorMap',
+      value: function depthToColorMap(depth) {
+        var entries = {
+          0: '#d63031',
+          1: '#a29bfe',
+          2: '#0984e3',
+          3: '#fab1a0',
+          4: '#636e72'
+        };
+
+        var numColors = Object.keys(entries).length;
+        return entries[depth % numColors];
+      }
+    }, {
       key: '_nodeRenderer',
-      value: function _nodeRenderer(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
-        var node = '';
-        node += '<div ';
-        node += 'style="height:100%;width:100%;" ';
-        node += 'class="' + nodeClass + '" ';
-        node += 'id="node' + id + '">\n';
-        node += textRenderer(name, extra, textClass);
-        node += '</div>';
-        return node;
+      value: function _nodeRenderer(nodes) {
+        var groups = nodes.append('g').attr('x', function (d) {
+          return d.x;
+        }).attr('y', function (d) {
+          return d.y;
+        }).attr('width', function (d) {
+          return d.cWidth + 'px';
+        }).attr('height', function (d) {
+          return d.cHeight + 'px';
+        });
+
+        var rects = groups.append('rect').attr('width', function (d) {
+          return d.cWidth + 'px';
+        }).attr('height', function (d) {
+          return d.cHeight + 'px';
+        }).style('fill', function (d) {
+          return TreeBuilder.depthToColorMap(d.depth);
+        });
+
+        groups.append('text').attr('x', function (d) {
+          return d.cWidth / 2 + 'px';
+        }).attr('y', function (d) {
+          return d.cHeight / 2 + 'px';
+        }).style('fill', 'white').attr('font-family', 'Source Sans Pro, sans-serif').attr('font-weight', 800).attr('font-size', '10px').attr('text-decoration', 'underline').attr('text-anchor', 'middle').text(function (d) {
+          return d.data.name;
+        });
+
+        groups.append('text').attr('x', function (d) {
+          return d.cWidth / 2 + 'px';
+        }).attr('y', function (d) {
+          return 10 + d.cHeight / 2 + 'px';
+        }).style('fill', 'white').attr('font-family', 'Source Sans Pro, sans-serif').attr('font-weight', 800).attr('font-size', '6px').attr('text-anchor', 'middle').text(function (d) {
+          return d.data.location;
+        });
+        return groups;
       }
     }, {
       key: '_textRenderer',
-      value: function _textRenderer(name, extra, textClass) {
+      value: function _textRenderer(name, info, textClass) {
         var node = '';
         node += '<p ';
         node += 'align="center" ';
         node += 'class="' + textClass + '">\n';
         node += name;
         node += '</p>\n';
+
+        if (info.percentage && info.percentage != 'N/A') {
+          node += '<p align="center" class="' + textClass + '"> ' + info.percentage + '% </p>';
+        }
+
+        if (info.location) {
+          node += '<p align="center" class="' + textClass + '"> ' + info.location + ' </p>';
+        }
+
         return node;
       }
     }, {
@@ -297,9 +269,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         height: 600,
         callbacks: {
           nodeClick: function nodeClick(name, extra, id) {},
-          nodeRenderer: function nodeRenderer(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
-            return TreeBuilder._nodeRenderer(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer);
-          },
           nodeSize: function nodeSize(nodes, width, textRenderer) {
             return TreeBuilder._nodeSize(nodes, width, textRenderer);
           },
@@ -311,7 +280,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         },
         margin: {
-          top: 0,
+          top: 50,
           right: 0,
           bottom: 0,
           left: 0
@@ -325,142 +294,60 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
       });
 
-      var data = this._preprocess(data, opts);
-      var treeBuilder = new TreeBuilder(data.root, data.siblings, opts);
+      this.process(data);
+      var hierarchyData = d3.hierarchy(data);
+      var treeBuilder = new TreeBuilder(hierarchyData, [], opts);
       treeBuilder.create();
     },
-
-    _preprocess: function _preprocess(data, opts) {
-
-      var siblings = [];
-      var id = 0;
-
-      var root = {
-        name: '',
-        id: id++,
-        hidden: true,
-        children: []
+    mapClass: function mapClass(label) {
+      var d = {
+        'person': 'person',
+        'company': 'company'
       };
 
-      var reconstructTree = function reconstructTree(person, parent) {
+      return d[label];
+    },
 
-        // convert to person to d3 node
-        var node = {
-          name: person.name,
-          id: id++,
-          hidden: false,
-          children: [],
-          extra: person.extra,
-          textClass: person.textClass ? person.textClass : opts.styles.text,
-          'class': person['class'] ? person['class'] : opts.styles.node
-        };
+    mapTextClass: function mapTextClass(label) {
+      var d = {
+        'person': 'person-text',
+        'company': 'company-text'
+      };
+      return d[label];
+    },
 
-        // hide linages to the hidden root node
-        if (parent == root) {
-          node.noParent = true;
-        }
-
-        // apply depth offset
-        for (var i = 0; i < person.depthOffset; i++) {
-          var pushNode = {
-            name: '',
-            id: id++,
-            hidden: true,
-            children: [],
-            noParent: node.noParent
-          };
-          parent.children.push(pushNode);
-          parent = pushNode;
-        }
-
-        // sort children
-        dTree._sortPersons(person.children, opts);
-
-        // add "direct" children
-        _.forEach(person.children, function (child) {
-          reconstructTree(child, node);
-        });
-
-        parent.children.push(node);
-
-        //sort marriages
-        dTree._sortMarriages(person.marriages, opts);
-
-        // go through marriage
-        _.forEach(person.marriages, function (marriage, index) {
-
-          var m = {
-            name: '',
-            id: id++,
-            hidden: true,
-            noParent: true,
-            children: [],
-            extra: marriage.extra
-          };
-
-          var sp = marriage.spouse;
-
-          var spouse = {
-            name: sp.name,
-            id: id++,
-            hidden: false,
-            noParent: true,
-            children: [],
-            textClass: sp.textClass ? sp.textClass : opts.styles.text,
-            'class': sp['class'] ? sp['class'] : opts.styles.node,
-            extra: sp.extra,
-            marriageNode: m
-          };
-
-          parent.children.push(m, spouse);
-
-          dTree._sortPersons(marriage.children, opts);
-          _.forEach(marriage.children, function (child) {
-            reconstructTree(child, m);
-          });
-
-          siblings.push({
-            source: {
-              id: node.id
-            },
-            target: {
-              id: spouse.id
-            },
-            number: index
-          });
-        });
+    addStyle: function addStyle(nodes, label) {
+      var style = {
+        'class': this.mapClass(label),
+        textClass: this.mapTextClass(label)
       };
 
-      _.forEach(data, function (person) {
-        reconstructTree(person, root);
+      _.merge(nodes, style);
+    },
+
+    listOfAttributes: ['percentage', 'location', 'gender', 'news'],
+
+    compactExtraInfo: function compactExtraInfo(nodes, listOfAttributes) {
+      nodes.data = _.pick(nodes, listOfAttributes);
+    },
+
+    process: function process(nodes) {
+
+      if (!nodes) {
+        return;
+      }
+
+      var label = nodes.type;
+
+      this.addStyle(nodes, label);
+      this.compactExtraInfo(nodes, this.listOfAttributes);
+
+      var processFunction = this.process.bind(this);
+
+      (nodes.children || []).forEach(function (child) {
+        processFunction(child);
       });
-
-      return {
-        root: d3.hierarchy(root),
-        siblings: siblings
-      };
-    },
-
-    _sortPersons: function _sortPersons(persons, opts) {
-      if (persons != undefined) {
-        persons.sort(function (a, b) {
-          return opts.callbacks.nodeSorter(a.name, a.extra, b.name, b.extra);
-        });
-      }
-      return persons;
-    },
-
-    _sortMarriages: function _sortMarriages(marriages, opts) {
-      if (marriages != undefined && Array.isArray(marriages)) {
-        marriages.sort(function (marriageA, marriageB) {
-          var a = marriageA.spouse;
-          var b = marriageB.spouse;
-          return opts.callbacks.nodeSorter(a.name, a.extra, b.name, b.extra);
-        });
-      }
-      return marriages;
     }
-
   };
 
   return dTree;

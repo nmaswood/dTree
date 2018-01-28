@@ -1,0 +1,134 @@
+{
+  "id": 0,
+  "type": "company",
+  "name": "Company A",
+  "location": "USA",
+  "percentage": "N/A",
+  "children": [
+    {
+      "id": 1,
+      "type": "company",
+      "name": "Company B",
+      "location": "USA",
+      "percentage": ".6",
+      "children": [
+        {
+          "id": 4,
+          "type": "company",
+          "name": "Company D",
+          "location": "USA",
+          "percentage": ".1",
+          "children": [
+            {
+              "id": 14,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 1",
+              "location": "Kuwait City, KU",
+              "percentage": ".4"
+            }
+          ]
+        },
+        {
+          "id": 32,
+          "type": "person",
+          "pep": "",
+          "gender": "male",
+          "name": "Person 2",
+          "location": "Dubai, AE",
+          "percentage": ".4"
+        },
+        {
+          "id": 5,
+          "type": "company",
+          "name": "Company E",
+          "location": "Cayman Islands, CI",
+          "percentage": ".5",
+          "children": [
+            {
+              "id": 43,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 3",
+              "location": "London, UK",
+              "percentage": ".5"
+            },
+            {
+              "id": 54,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 4",
+              "location": "Tripoli, LY",
+              "percentage": ".5"
+            }
+          ]
+        }
+      ]
+
+    },
+    {
+      "id": 3,
+      "type": "company",
+      "name": "Company C",
+      "location": "USA",
+      "percentage": ".4",
+      "children": [
+        {
+          "id": 12,
+          "type": "company",
+          "name": "Company F",
+          "location": "USA",
+          "percentage": ".5",
+          "children": [
+            {
+              "id": 234,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 4",
+              "location": "Kuwait City, KU",
+              "percentage": ".4"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "type": "company",
+          "name": "Company G",
+          "location": "Amsterdam, NL",
+          "percentage": ".4"
+        },
+        {
+          "id": 10,
+          "type": "company",
+          "name": "Company E",
+          "location": "Cayman Islands, CI",
+          "percentage": ".5",
+          "children": [
+            {
+              "id": 12345,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 3",
+              "location": "London, UK",
+              "percentage": ".5"
+            },
+            {
+              "id": 234,
+              "type": "person",
+              "pep": "",
+              "gender": "male",
+              "name": "Person 4",
+              "location": "Tripoli, LY",
+              "percentage": ".5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

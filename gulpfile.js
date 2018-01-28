@@ -13,10 +13,13 @@ const buffer = require('vinyl-buffer');
 const browserify = require('browserify');
 const runSequence = require('run-sequence');
 const source = require('vinyl-source-stream');
-const rollup = require( 'rollup' );
+const rollup = require('rollup');
 const argv = require('minimist')(process.argv.slice(2));
 const fs = require('fs');
+const sass = require('gulp-sass');
+const concat = require('gulp-concat');
 const conventionalGithubReleaser = require('conventional-github-releaser');
+
 
 // Gather the library data from `package.json`
 const manifest = require('./package.json');
@@ -66,8 +69,22 @@ function getPackageJsonVersion () {
   return JSON.parse(fs.readFileSync('./package.json', 'utf8')).version;
 }
 
+//gulp.task('sass', function () {
+  //return gulp.src('./sass/**/*.scss')
+    //.pipe(sass().on('error', sass.logError))
+    //.pipe(gulp.dest('./css'));
+//});
+//
+gulp.task('sass', function() {
+
+  return gulp.src('style/scss/*.scss')
+    .pipe(concat('main.scss'))
+    .pipe(sass())
+    .pipe(gulp.dest('style'));
+});
+
 // Build two versions of the library
-gulp.task('build', ['lint-src', 'clean'], function(done) {
+gulp.task('build', ['sass', 'lint-src', 'clean'], function(done) {
   var version = getPackageJsonVersion();
   rollup.rollup({
     entry: 'src/' + config.entryFileName,
@@ -184,8 +201,7 @@ const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
 gulp.task('watch', function() {
   const watchFiles = jsWatchFiles.concat(otherWatchFiles);
   gulp.watch(watchFiles, ['test', 'build']);
-  //runSequence(['build']);
-
+  runSequence(['build']);
 });
 
 // Set up a livereload environment for our spec runner

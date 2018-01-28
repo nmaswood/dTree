@@ -13,10 +13,6 @@ const dTree = {
       height: 600,
       callbacks: {
         nodeClick: function(name, extra, id) {},
-        nodeRenderer: function(name, x, y, height, width, extra, id, nodeClass, textClass, textRenderer) {
-          return TreeBuilder._nodeRenderer(name, x, y, height, width, extra,
-            id,nodeClass, textClass, textRenderer);
-        },
         nodeSize: function(nodes, width, textRenderer) {
           return TreeBuilder._nodeSize(nodes, width, textRenderer);
         },
@@ -26,7 +22,7 @@ const dTree = {
         },
       },
       margin: {
-        top: 0,
+        top: 50,
         right: 0,
         bottom: 0,
         left: 0
@@ -40,145 +36,60 @@ const dTree = {
       }
     });
 
-    var data = this._preprocess(data, opts);
-    var treeBuilder = new TreeBuilder(data.root, data.siblings, opts);
+    this.process(data);
+    const hierarchyData = d3.hierarchy(data);
+    const treeBuilder = new TreeBuilder(hierarchyData, [], opts);
     treeBuilder.create();
+  },
+  mapClass: function(label) {
+    const d = {
+      'person': 'person',
+      'company': 'company'
+    };
 
+    return d[label];
   },
 
-  _preprocess: function(data, opts) {
+  mapTextClass: function(label) {
+    const d = {
+      'person': 'person-text',
+      'company': 'company-text'
+    };
+    return d[label];
+  },
 
-    var siblings = [];
-    var id = 0;
-
-    var root = {
-      name: '',
-      id: id++,
-      hidden: true,
-      children: []
+  addStyle: function(nodes, label) {
+    const style = {
+      class: this.mapClass(label),
+      textClass: this.mapTextClass(label)
     };
 
-    var reconstructTree = function(person, parent) {
+    _.merge(nodes, style);
+  },
 
-      // convert to person to d3 node
-      var node = {
-        name: person.name,
-        id: id++,
-        hidden: false,
-        children: [],
-        extra: person.extra,
-        textClass: person.textClass ? person.textClass : opts.styles.text,
-        class: person.class ? person.class : opts.styles.node
-      };
+  listOfAttributes: ['percentage', 'location', 'gender', 'news'],
 
-      // hide linages to the hidden root node
-      if (parent == root) {
-        node.noParent = true;
-      }
+  compactExtraInfo: function(nodes, listOfAttributes) {
+    nodes.data = _.pick(nodes, listOfAttributes);
+  },
 
-      // apply depth offset
-      for (var i = 0; i < person.depthOffset; i++) {
-        var pushNode = {
-          name: '',
-          id: id++,
-          hidden: true,
-          children: [],
-          noParent: node.noParent
-        };
-        parent.children.push(pushNode);
-        parent = pushNode;
-      }
+  process: function(nodes) {
 
-      // sort children
-      dTree._sortPersons(person.children, opts);
+    if (!nodes) {
+      return;
+    }
 
-      // add "direct" children
-      _.forEach(person.children, function(child) {
-        reconstructTree(child, node);
-      });
+    const label = nodes.type;
 
-      parent.children.push(node);
+    this.addStyle(nodes, label);
+    this.compactExtraInfo(nodes, this.listOfAttributes);
 
-      //sort marriages
-      dTree._sortMarriages(person.marriages, opts);
+    const processFunction = this.process.bind(this);
 
-      // go through marriage
-      _.forEach(person.marriages, function(marriage, index) {
-
-        var m = {
-          name: '',
-          id: id++,
-          hidden: true,
-          noParent: true,
-          children: [],
-          extra: marriage.extra
-        };
-
-        var sp = marriage.spouse;
-
-        var spouse = {
-          name: sp.name,
-          id: id++,
-          hidden: false,
-          noParent: true,
-          children: [],
-          textClass: sp.textClass ? sp.textClass : opts.styles.text,
-          class: sp.class ? sp.class : opts.styles.node,
-          extra: sp.extra,
-          marriageNode: m
-        };
-
-        parent.children.push(m, spouse);
-
-        dTree._sortPersons(marriage.children, opts);
-        _.forEach(marriage.children, function(child) {
-          reconstructTree(child, m);
-        });
-
-        siblings.push({
-          source: {
-            id: node.id
-          },
-          target: {
-            id: spouse.id
-          },
-          number: index
-        });
-      });
-
-    };
-
-    _.forEach(data, function(person) {
-      reconstructTree(person, root);
+    (nodes.children || []).forEach(function(child) {
+      processFunction(child);
     });
-
-    return {
-      root: d3.hierarchy(root),
-      siblings: siblings
-    };
-
-  },
-
-  _sortPersons: function(persons, opts) {
-    if (persons != undefined) {
-      persons.sort(function(a, b) {
-        return opts.callbacks.nodeSorter(a.name, a.extra, b.name, b.extra);
-      });
-    }
-    return persons;
-  },
-
-  _sortMarriages: function(marriages, opts) {
-    if (marriages != undefined && Array.isArray(marriages)) {
-      marriages.sort(function(marriageA, marriageB) {
-        var a = marriageA.spouse;
-        var b = marriageB.spouse;
-        return opts.callbacks.nodeSorter(a.name, a.extra, b.name, b.extra);
-      });
-    }
-    return marriages;
   }
-
 };
 
 export default dTree;
