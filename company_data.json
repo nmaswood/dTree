@@ -1,6 +1,7 @@
 {
   "id": 0,
   "type": "company",
+  "news": null,
   "name": "Company A",
   "location": "USA",
   "percentage": "N/A",
@@ -8,6 +9,7 @@
     {
       "id": 1,
       "type": "company",
+      "news": null,
       "name": "Company B",
       "location": "USA",
       "percentage": ".6",
@@ -15,6 +17,7 @@
         {
           "id": 4,
           "type": "company",
+          "news": null,
           "name": "Company D",
           "location": "USA",
           "percentage": ".1",
@@ -22,6 +25,7 @@
             {
               "id": 14,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 1",
@@ -33,6 +37,7 @@
         {
           "id": 32,
           "type": "person",
+          "news": null,
           "pep": "",
           "gender": "male",
           "name": "Person 2",
@@ -42,6 +47,7 @@
         {
           "id": 5,
           "type": "company",
+          "news": null,
           "name": "Company E",
           "location": "Cayman Islands, CI",
           "percentage": ".5",
@@ -49,6 +55,7 @@
             {
               "id": 43,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 3",
@@ -58,6 +65,7 @@
             {
               "id": 54,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 4",
@@ -72,6 +80,7 @@
     {
       "id": 3,
       "type": "company",
+      "news": null,
       "name": "Company C",
       "location": "USA",
       "percentage": ".4",
@@ -79,6 +88,7 @@
         {
           "id": 12,
           "type": "company",
+          "news": null,
           "name": "Company F",
           "location": "USA",
           "percentage": ".5",
@@ -86,6 +96,7 @@
             {
               "id": 234,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 4",
@@ -97,6 +108,7 @@
         {
           "id": 15,
           "type": "company",
+          "news": null,
           "name": "Company G",
           "location": "Amsterdam, NL",
           "percentage": ".4"
@@ -104,6 +116,7 @@
         {
           "id": 10,
           "type": "company",
+          "news": null,
           "name": "Company E",
           "location": "Cayman Islands, CI",
           "percentage": ".5",
@@ -111,6 +124,7 @@
             {
               "id": 12345,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 3",
@@ -120,6 +134,7 @@
             {
               "id": 234,
               "type": "person",
+              "news": null,
               "pep": "",
               "gender": "male",
               "name": "Person 4",
