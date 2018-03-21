@@ -107,6 +107,52 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return d.id;
         });
         var groups = TreeBuilder._nodeRenderer(svgs);
+
+        var exclamations = this.svg.selectAll('.news-exclamation').data(treenodes.descendants()).enter()
+        // filter links with no parents to prevent empty nodes
+        .filter(function (d) {
+          return d.data.news != null;
+        });
+
+        exclamations.append('text').attr('class', 'fas fa-exclamation-circle').attr('x', function (d) {
+          return d.x + 30 + 'px';
+        }).attr('y', function (d) {
+          return d.y - d.cHeight / 2 + 9 + 'px';
+        }).style('cursor', 'pointer').attr('fill', 'black').attr('font-size', function (d) {
+          return '1.5em';
+        }).text(function (d) {
+          return '';
+        }).on('mouseover', function (d) {
+          var newsBox = d3.select('#news-box-' + d.data.id);
+          newsBox.style('visibility', 'visible');
+        }).on('mouseout', function (d) {
+          var newsBox = d3.select('#news-box-' + d.data.id);
+          newsBox.style('visibility', 'hidden');
+        });
+
+        var exclamationGroups = exclamations.append('g').attr('width', '500px').attr('height', '500px').attr('x', function (d) {
+          return d.x - d.cWidth / 2 + 'px';
+        }).attr('y', function (d) {
+          return d.y - d.cHeight / 2 + 'px';
+        })
+        //j.attr('visibility', 'hidden')
+        .attr('id', function (d) {
+          return 'news-box-' + d.data.id;
+        });
+
+        var exclamationHeight = 80;
+        var exclamationOffset = 60;
+        exclamationGroups.append('rect').attr('class', 'news-box').attr('fill', '#ecf0f1').attr('width', '80px').attr('height', exclamationHeight + 'px').attr('x', function (d) {
+          return d.x + d.cWidth / 2 + 'px';
+        }).attr('y', function (d) {
+          return d.y - exclamationOffset + 'px';
+        }).attr('stroke', 'black').attr('stroke-width', 2);
+
+        exclamationGroups.append('text').attr('width', '80px').attr('x', function (d) {
+          return d.x + d.cWidth / 2 + 'px';
+        }).attr('y', function (d) {
+          return d.y + 'px';
+        }).text('hello world');
       }
     }, {
       key: '_flatten',
@@ -175,7 +221,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       key: 'depthToColorMap',
       value: function depthToColorMap(depth) {
         var entries = {
-          0: '#d63031',
+          0: '#e74c3c',
           1: '#a29bfe',
           2: '#0984e3',
           3: '#fab1a0',

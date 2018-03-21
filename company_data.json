@@ -25,7 +25,7 @@
             {
               "id": 14,
               "type": "person",
-              "news": null,
+              "news": "Person1 was recently indicted on money laundering charges",
               "pep": "",
               "gender": "male",
               "name": "Person 1",
@@ -116,7 +116,7 @@
         {
           "id": 10,
           "type": "company",
-          "news": null,
+          "news": "Company E was featured in the Panama Papers as a prime suspect",
           "name": "Company E",
           "location": "Cayman Islands, CI",
           "percentage": ".5",
