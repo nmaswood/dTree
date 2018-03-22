@@ -195,7 +195,7 @@ gulp.task('build-in-sequence', function(callback) {
 // watchify is used instead, so these aren't included.
 const jsWatchFiles = ['src/**/*', 'test/**/*'];
 // These are files other than JS files which are to be watched. They are always watched.
-const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc'];
+const otherWatchFiles = ['package.json', '**/.eslintrc', '.jscsrc', 'style/scss/main.scss'];
 
 // Run the headless unit tests as you make changes.
 gulp.task('watch', function() {

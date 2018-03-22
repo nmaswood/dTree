@@ -114,14 +114,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return d.data.news != null;
         });
 
-        exclamations.append('text').attr('class', 'fas fa-exclamation-circle').attr('x', function (d) {
+        exclamations.append('text').attr('class', 'fas fa-exclamation-triangle').attr('x', function (d) {
           return d.x + 30 + 'px';
         }).attr('y', function (d) {
           return d.y - d.cHeight / 2 + 9 + 'px';
-        }).style('cursor', 'pointer').attr('fill', 'black').attr('font-size', function (d) {
+        }).style('cursor', 'pointer').attr('fill', '#B33A3A').attr('font-size', function (d) {
           return '1.5em';
         }).text(function (d) {
-          return '';
+          return '';
         }).on('mouseover', function (d) {
           var newsBox = d3.select('#news-box-' + d.data.id);
           newsBox.style('visibility', 'visible');
@@ -148,11 +148,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return d.y - exclamationOffset + 'px';
         }).attr('stroke', 'black').attr('stroke-width', 2);
 
-        exclamationGroups.append('text').attr('width', '80px').attr('x', function (d) {
+        exclamationGroups.append('foreignObject').attr('width', '80px').attr('x', function (d) {
           return d.x + d.cWidth / 2 + 'px';
         }).attr('y', function (d) {
-          return d.y + 'px';
-        }).text('hello world');
+          return d.y - 55 + 'px';
+        }).html(function (d) {
+          return '<p class="text-box"> Hello World </div>';
+        });
       }
     }, {
       key: '_flatten',
@@ -256,9 +258,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return d.cWidth / 2 + 'px';
         }).attr('y', function (d) {
           return d.cHeight / 2 + 'px';
-        }).style('fill', 'white').attr('font-family', 'Source Sans Pro, sans-serif').attr('font-weight', 800).attr('font-size', '10px').attr('text-decoration', 'underline').attr('text-anchor', 'middle').text(function (d) {
+        }).style('fill', 'white').attr('class', 'name-text-box').attr('font-family', 'Source Sans Pro, sans-serif').attr('font-weight', 800).attr('font-size', '10px').attr('text-decoration', 'underline').attr('text-anchor', 'middle').text(function (d) {
           return d.data.name;
         });
+
+        console.log('hello world');
 
         groups.append('text').attr('x', function (d) {
           return d.cWidth / 2 + 'px';

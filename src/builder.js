@@ -136,7 +136,7 @@ class TreeBuilder {
       });
 
     exclamations.append('text')
-      .attr('class', 'fas fa-exclamation-circle')
+      .attr('class', 'fas fa-exclamation-triangle')
       .attr('x', function(d) {
         return d.x + 30 + 'px';
       })
@@ -144,9 +144,9 @@ class TreeBuilder {
         return d.y - d.cHeight / 2 + 9 + 'px';
       })
       .style('cursor', 'pointer')
-      .attr('fill', 'black')
+      .attr('fill', '#B33A3A')
       .attr('font-size', function(d) { return '1.5em'; })
-      .text(function(d) { return '\uf06a'; })
+      .text(function(d) { return '\uf071'; })
       .on('mouseover', function(d) {
         const newsBox = d3.select(`#news-box-${d.data.id}`);
         newsBox.style('visibility', 'visible');
@@ -186,15 +186,17 @@ class TreeBuilder {
       .attr('stroke', 'black')
       .attr('stroke-width', 2);
 
-    exclamationGroups.append('text')
+    exclamationGroups.append('foreignObject')
       .attr('width', `80px`)
       .attr('x', function(d) {
         return d.x + d.cWidth / 2 + 'px';
       })
       .attr('y', function(d) {
-        return d.y + 'px';
+        return d.y - 55 +  'px';
       })
-      .text('hello world');
+      .html(function(d) {
+        return '<p class="text-box"> Hello World </div>';
+      });
   }
 
   _flatten(root) {
@@ -307,6 +309,7 @@ class TreeBuilder {
         return `${d.cHeight / 2}px`;
       })
       .style('fill', 'white')
+      .attr('class', 'name-text-box')
       .attr('font-family', 'Source Sans Pro, sans-serif')
       .attr('font-weight', 800)
       .attr('font-size', '10px')
@@ -315,6 +318,8 @@ class TreeBuilder {
       .text(function(d) {
         return d.data.name;
       });
+
+    console.log('hello world');
 
     groups.append('text')
       .attr('x', function(d) {
